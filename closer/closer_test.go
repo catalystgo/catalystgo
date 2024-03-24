@@ -66,8 +66,8 @@ func TestOptions(t *testing.T) {
 				ctx, _ := c.getContext()
 				cancelTime, ok := ctx.Deadline()
 
-				require.True(t, ok)
-				require.InDelta(t, float64(time.Now().Add(30*time.Second).Second()), float64(cancelTime.Second()), float64(1*time.Millisecond))
+				require.False(t, ok)
+				require.Zero(t, cancelTime)
 			},
 		},
 		{
@@ -80,17 +80,6 @@ func TestOptions(t *testing.T) {
 				require.True(t, ok)
 				require.InDelta(t, float64(time.Now().Add(5*time.Second).Second()), float64(cancelTime.Second()), float64(1*time.Millisecond))
 
-			},
-		},
-		{
-			name: "new_with_no_timeout",
-			opts: []Option{WithTimeout(5 * time.Second), WithNoTimeout()},
-			check: func(t *testing.T, c *closer) {
-				ctx, _ := c.getContext()
-				cancelTime, ok := ctx.Deadline()
-
-				require.False(t, ok)
-				require.InDelta(t, float64(time.Now().Add(5*time.Second).Second()), cancelTime.Second(), float64(1*time.Millisecond))
 			},
 		},
 		{

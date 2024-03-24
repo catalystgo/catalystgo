@@ -8,11 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/escalopa/zcratch/logger"
-)
-
-const (
-	defaultCloseTimeout = 30 * time.Second
+	"github.com/catalystgo/tracerok/logger"
 )
 
 type Closer interface {
@@ -48,16 +44,14 @@ type closer struct {
 	keys    keySlice
 	closers map[Order][]func() error
 
-	noTimeout bool
-	signals   []os.Signal
-	timeout   time.Duration
+	signals []os.Signal
+	timeout time.Duration
 }
 
 func New(opts ...Option) Closer {
 	c := &closer{
 		done:    make(chan struct{}),
 		closers: make(map[Order][]func() error),
-		timeout: defaultCloseTimeout,
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -183,10 +177,8 @@ func (c *closer) closeAll(closerByOrder map[Order][]func() error) {
 }
 
 // getContext get closer's context depending on the passed options.
-// notice that if both `WithTimeout` and `WithNoTimeout` were used
-// context will use `cancel` instead of `timeout`
-func (c *closer) getContext() (context.Context, func()) {
-	if c.noTimeout {
+func (c *closer) getContext() (ctx context.Context, close func()) {
+	if c.timeout == 0 {
 		return context.WithCancel(context.Background())
 	}
 	return context.WithTimeout(context.Background(), c.timeout)
