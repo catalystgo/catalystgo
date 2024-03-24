@@ -1,0 +1,36 @@
+version: '3'
+
+tasks:
+  mock:
+    cmds:
+      - mockgen -package=mock -destination=./mock/error_handler.go -source=./handler_test.go -mock_names errorHandler=MockErrorHanlder
+
+  format:
+    cmds:
+      - task: go_files
+        vars: { COMMAND: 'gofmt -w  {} +'}
+      - task: go_files
+        vars: { COMMAND: 'goimports -w  {} +'}
+
+  test:
+    cmds:
+      - go test -v ./...
+
+  lint:
+    cmds:
+      - revive
+        -config revive.toml
+        -formatter friendly
+        -exclude ./mock
+        ./...
+
+## INTERNAL COMMANDS
+
+  go_files:
+    desc: "Return all .go files and run .COMMAND on them"
+    internal: true
+    cmds:
+     - find .
+        -name "*.go"
+        -not -path ./mock
+        -exec {{.COMMAND}};
