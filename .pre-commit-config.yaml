@@ -31,5 +31,5 @@ repos:
     rev: v9.13.0
     hooks:
       - id: commitlint # avaliable types are: build, ci, chore, docs, feat, fix, perf, refactor, revert, style, test
-        stages: [push]
+        stages: [push, commit]
         additional_dependencies: ["@commitlint/config-conventional"]
