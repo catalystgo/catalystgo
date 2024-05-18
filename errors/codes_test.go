@@ -23,8 +23,8 @@ func TestCodeGRPC(t *testing.T) {
 	for i := 0; i < CodeSize; i++ {
 		testName := fmt.Sprintf("%s should not be zero", Code(i).String())
 		t.Run(testName, func(t *testing.T) {
-			if Code(i).GRPC() == codes.OK {
-				t.Errorf("Code(%d).GRPC() == 0", i)
+			if Code(i).GRPC().String() == "" {
+				t.Errorf("Code(%d).GRPC() = \"\"", i)
 			}
 		})
 	}

@@ -22,8 +22,11 @@ var (
 type Code int
 
 const (
+	// OK
+	OK Code = iota
+
 	// Unknown is the default error code.
-	Unknown Code = iota
+	Unknown
 
 	// Canceled indicates the operation was canceled or unavailable because it was cancelled.
 	Canceled
@@ -37,6 +40,9 @@ const (
 
 	// Unauthenticated is used when the client is not authenticated.
 	Unauthenticated
+
+	// PermissionDenied
+	PermissionDenied
 
 	// NotFound is used when the requested resource is not found.
 	NotFound
@@ -76,9 +82,9 @@ const (
 //	const (
 //		// MyCode is a custom code.
 //		MyCode Code = errs.CodeSize + iota // = 15
-//	 	ExtraCode // = 16
+//	 	ExtraCode // = 17
 //	)
-const CodeSize = 15
+const CodeSize = 16
 
 // String returns the string representation of the code.
 func (c Code) String() string {
@@ -143,14 +149,16 @@ func ClearCodeRegister() {
 // httpCodes is an array that contains DEFAULT mappings for
 // codes to http codes
 var httpCodes = [...]int{
+	OK:                 http.StatusOK,
 	Unknown:            http.StatusInternalServerError,
 	DataLoss:           http.StatusInternalServerError,
 	DeadlineExceeded:   http.StatusGatewayTimeout,
 	FailedPrecondition: http.StatusPreconditionFailed,
 	ResourceExhausted:  http.StatusTooManyRequests,
-	Canceled:           499,
+	Canceled:           http.StatusRequestTimeout,
 	InvalidArgument:    http.StatusBadRequest,
 	Unauthenticated:    http.StatusUnauthorized,
+	PermissionDenied:   http.StatusForbidden,
 	Forbidden:          http.StatusForbidden,
 	NotFound:           http.StatusNotFound,
 	AlreadyExists:      http.StatusConflict,
@@ -162,6 +170,7 @@ var httpCodes = [...]int{
 
 // codeNames is an array that contains DEFAULT string descriptions of codes
 var codeNames = [...]string{
+	OK:                 "ok",
 	Unknown:            "unknown",
 	DataLoss:           "data_loss",
 	DeadlineExceeded:   "deadline_exceeded",
@@ -170,6 +179,7 @@ var codeNames = [...]string{
 	Canceled:           "canceled",
 	InvalidArgument:    "invalid_argument",
 	Unauthenticated:    "unauthenticated",
+	PermissionDenied:   "permission_denied",
 	Forbidden:          "forbidden",
 	NotFound:           "not_found",
 	AlreadyExists:      "already_exists",
@@ -182,6 +192,7 @@ var codeNames = [...]string{
 // grpcCodes is an array that contains default 1 to 1 mapping of codes
 // to grpc codes.
 var grpcCodes = [...]codes.Code{
+	OK:                 codes.OK,
 	DataLoss:           codes.DataLoss,
 	Unknown:            codes.Unknown,
 	InvalidArgument:    codes.InvalidArgument,
@@ -189,6 +200,7 @@ var grpcCodes = [...]codes.Code{
 	FailedPrecondition: codes.FailedPrecondition,
 	ResourceExhausted:  codes.ResourceExhausted,
 	Canceled:           codes.Canceled,
+	PermissionDenied:   codes.PermissionDenied,
 	Unauthenticated:    codes.Unauthenticated,
 	Forbidden:          codes.PermissionDenied,
 	NotFound:           codes.NotFound,

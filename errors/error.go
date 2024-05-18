@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -133,6 +134,10 @@ func Convert(err error) error {
 		code: Unknown,
 		msg:  err.Error(),
 	}
+}
+
+func Is(err, target error) bool {
+	return errors.Is(err, target)
 }
 
 // equalNodes was created because we can't even trust go to compare equality of the error structs.

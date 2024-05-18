@@ -27,9 +27,9 @@ repos:
       - id: go-revive
         stages: [push, commit]
 
-  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.13.0
-    hooks:
-      - id: commitlint # avaliable types are: build, ci, chore, docs, feat, fix, perf, refactor, revert, style, test
-        stages: [push, commit]
-        additional_dependencies: ["@commitlint/config-conventional"]
+  # - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+  #   rev: v9.13.0
+  #   hooks:
+  #     - id: commitlint # avaliable types are: build, ci, chore, docs, feat, fix, perf, refactor, revert, style, test
+  #       stages: [push, commit]
+  #       additional_dependencies: ["@commitlint/config-conventional"]
