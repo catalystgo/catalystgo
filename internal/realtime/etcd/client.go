@@ -8,7 +8,7 @@ import (
 
 	"github.com/catalystgo/catalystgo/errors"
 	"github.com/catalystgo/catalystgo/internal/realtime"
-	"github.com/catalystgo/tracerok/logger"
+	"github.com/catalystgo/logger/logger"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 )
@@ -78,14 +78,15 @@ func (c *Client) GetValue(ctx context.Context, key string) (realtime.Value, erro
 
 // SetValue sets a value by key in the etcd storage
 func (c *Client) SetValue(ctx context.Context, key string, value string) error {
-	response, err := c.client.Put(ctx, key, value)
+	response, err := c.client.Put(ctx, key, value, clientv3.WithPrevKV())
 	if err != nil {
 		return errors.Newf("put value for etcd key: %s => %v", key, err)
 	}
 
-	logger.WarnKV(ctx, fmt.Sprintf("set value for key \"%s\" ", key),
+	logger.WarnKV(ctx, fmt.Sprintf("set value for key %q", key),
 		zap.String("key", key),
-		zap.String("value", value),
+		zap.String("new_value", value),
+		zap.String("old_value", string(response.PrevKv.Value)),
 
 		zap.Int64("etcd_revision", response.Header.GetRevision()),
 		zap.Uint64("etcd_raft_term", response.Header.GetRaftTerm()),

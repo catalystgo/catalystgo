@@ -1,6 +1,8 @@
 package realtime
 
-import "context"
+import (
+	"context"
+)
 
 type Client interface {
 	GetValue(ctx context.Context, key string) (Value, error)

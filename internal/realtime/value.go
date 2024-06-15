@@ -12,25 +12,31 @@ import (
 type Value interface {
 	IsNil() bool
 	IsEqual(Value) bool
+
 	Bool() bool
 	MaybeBool() (bool, error)
+
 	Int() int
 	MaybeInt() (int, error)
-	Int64() int64
 
+	Int64() int64
 	MaybeInt64() (int64, error)
+
 	Uint() uint
 	MaybeUint() (uint, error)
-	Uint64() uint64
 
+	Uint64() uint64
 	MaybeUint64() (uint64, error)
+
 	Float64() float64
 	MaybeFloat64() (float64, error)
-	Duration() time.Duration
 
+	Duration() time.Duration
 	MaybeDuration() (time.Duration, error)
+
 	String() string
 	MaybeString() (string, error)
+
 	ParsedJSON() map[string]interface{}
 
 	MaybeParsedJSON() (map[string]interface{}, error)
@@ -66,7 +72,6 @@ func NewValue(vv interface{}) value {
 }
 
 // IsNil reports if the underlying value is nil
-
 func (v value) IsNil() bool {
 	return len(v.values) == 0 || len(v.values) == 1 && v.values[0] == nil
 }
@@ -77,14 +82,12 @@ func (v value) IsEqual(vv Value) bool {
 }
 
 // Bool returns the underlying value as bool
-
 func (v value) Bool() bool {
 	val, _ := v.MaybeBool()
 	return val
 }
 
 // MaybeBool returns the underlying value as bool with error (if any)
-
 func (v value) MaybeBool() (bool, error) {
 	raw := v.String()
 	val, err := strconv.ParseBool(raw)
@@ -96,14 +99,12 @@ func (v value) MaybeBool() (bool, error) {
 }
 
 // Int returns the underlying value as int
-
 func (v value) Int() int {
 	val, _ := v.MaybeInt()
 	return val
 }
 
 // MaybeInt returns the underlying value as int with error (if any)
-
 func (v value) MaybeInt() (int, error) {
 	raw := v.String()
 	val, err := strconv.Atoi(raw)
@@ -131,14 +132,12 @@ func (v value) MaybeInt64() (int64, error) {
 }
 
 // Uint returns the underlying value as uint
-
 func (v value) Uint() uint {
 	val, _ := v.MaybeUint()
 	return val
 }
 
 // MaybeUint returns the underlying value as uint with error (if any)
-
 func (v value) MaybeUint() (uint, error) {
 	raw := v.String()
 	val, err := strconv.ParseUint(raw, 10, 32)
@@ -166,14 +165,12 @@ func (v value) MaybeUint64() (uint64, error) {
 }
 
 // Float64 returns the underlying value as float64
-
 func (v value) Float64() float64 {
 	val, _ := v.MaybeFloat64()
 	return val
 }
 
 // MaybeFloat64 returns the underlying value as float64 with error (if any)
-
 func (v value) MaybeFloat64() (float64, error) {
 	raw := v.String()
 	val, err := strconv.ParseFloat(raw, 64)
@@ -217,7 +214,6 @@ func (v value) MaybeString() (string, error) {
 
 	return fmt.Sprintf("%v", v.values), nil
 }
-
 func (v value) GoString() string {
 	return v.String()
 }
