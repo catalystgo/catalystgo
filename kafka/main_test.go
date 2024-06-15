@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/catalystgo/tracerok/logger"
+	"github.com/catalystgo/logger/logger"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )

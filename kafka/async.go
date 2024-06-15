@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/IBM/sarama"
-	"github.com/catalystgo/tracerok/logger"
+	"github.com/catalystgo/logger/logger"
 	"go.uber.org/zap"
 )
 
