@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "net/http/pprof"
 	"syscall"
+	"time"
 
 	"github.com/catalystgo/catalystgo/closer"
 	"github.com/catalystgo/healthcheck"
@@ -63,11 +64,11 @@ func New() (*App, error) {
 	}
 
 	app.globalCloser.Add(func() error {
-		logger.Infof(ctx, "shutting down app")
-		cancel()
+		logger.Errorf(ctx, "shutting down app")
 		app.grpcCloser.CloseAll()
 		app.httpCloser.CloseAll()
 		app.adminCloser.CloseAll()
+		cancel()
 		return nil
 	})
 
@@ -75,6 +76,8 @@ func New() (*App, error) {
 }
 
 func (a *App) Run(descriptions ...Service) error {
+	runCallTime := time.Now().UTC()
+
 	// Get serviceDesc
 	serviceDesc := make([]ServiceDesc, len(descriptions))
 	for i, desc := range descriptions {
@@ -98,6 +101,10 @@ func (a *App) Run(descriptions ...Service) error {
 	if err := a.startAdminServer(); err != nil {
 		return fmt.Errorf("start admin server: %+v", err)
 	}
+
+	logger.Infof(a.ctx, "app started in %v", time.Since(runCallTime))
+	logger.Infof(a.ctx, "app running%d")
+	<-a.ctx.Done() // Wait for the app to be closed
 
 	return nil
 }

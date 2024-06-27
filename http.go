@@ -24,14 +24,14 @@ func (a *App) startHTTPServer() error {
 
 	publicServer := http.Server{Handler: a.publicServer}
 	go func() {
-		logger.Infof(a.ctx, "HTTP server listening on port %d", a.cfg.Server.HTTP.Port)
-		if err := http.Serve(lis, a.publicServer); err != nil {
+		logger.Errorf(a.ctx, "HTTP server listening on port %d", a.cfg.Server.HTTP.Port)
+		if err := http.Serve(lis, a.publicServer); err != nil && err != http.ErrServerClosed {
 			logger.Fatalf(a.ctx, "serve: %v", err)
 		}
 	}()
 
 	a.httpCloser.Add(func() error {
-		logger.Infof(a.ctx, "shutting down HTTP server")
+		logger.Errorf(a.ctx, "shutting down HTTP server")
 		return publicServer.Shutdown(a.ctx)
 	})
 
@@ -48,14 +48,14 @@ func (a *App) startAdminServer() error {
 
 	adminServer := http.Server{Handler: a.adminServer}
 	go func() {
-		logger.Infof(a.ctx, "Admin server listening on port %d", a.cfg.Server.Debug.Port)
-		if err := http.Serve(lis, a.adminServer); err != nil {
+		logger.Errorf(a.ctx, "Admin server listening on port %d", a.cfg.Server.Debug.Port)
+		if err := http.Serve(lis, a.adminServer); err != nil && err != http.ErrServerClosed {
 			logger.Fatalf(a.ctx, "serve: %v", err)
 		}
 	}()
 
 	a.httpCloser.Add(func() error {
-		logger.Infof(a.ctx, "shutting down Admin server")
+		logger.Errorf(a.ctx, "shutting down Admin server")
 		return adminServer.Shutdown(a.ctx)
 	})
 

@@ -17,14 +17,14 @@ func (a *App) startGrpcServer() error {
 	reflection.Register(a.grpcServer)
 
 	go func() {
-		logger.Infof(a.ctx, "gRPC server listening on port %d", a.cfg.Server.Grpc.Port)
+		logger.Errorf(a.ctx, "gRPC server listening on port %d", a.cfg.Server.Grpc.Port)
 		if err := a.grpcServer.Serve(lis); err != nil {
 			logger.Fatalf(a.ctx, "failed to serve: %w", err)
 		}
 	}()
 
 	a.grpcCloser.Add(func() error {
-		logger.Infof(a.ctx, "shutting down gRPC server")
+		logger.Errorf(a.ctx, "shutting down gRPC server")
 		a.grpcServer.GracefulStop()
 		return nil
 	})

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	configPath = flag.String("config", "./catalystgo/config-development.yml", "CatalystGo config file")
+	configPath = flag.String("config", "./.catalystgo/config-development.yml", "CatalystGo config file")
 )
 
 func init() {
@@ -19,10 +19,10 @@ func init() {
 	ctx := context.Background()
 
 	if configPath == nil {
-		logger.Fatalf(ctx, "config path not passed. consider using --config")
+		logger.Fatal(ctx, "config path not passed. consider using --config")
 	}
 
 	if _, err := os.Stat(*configPath); errors.Is(err, os.ErrNotExist) {
-		logger.Fatalf(ctx, "config path not passed. consider using --config")
+		logger.Fatalf(ctx, "config path not valid: %v", err)
 	}
 }
