@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/catalystgo/tracerok/logger"
+	"github.com/catalystgo/logger/logger"
 )
 
 type Closer interface {
