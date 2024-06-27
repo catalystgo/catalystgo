@@ -1,0 +1,48 @@
+app:
+  name: "catalyst_go_app"
+
+server:
+  debug:
+    port: 8080
+  http:
+    port: 8082
+  grpc:
+    port: 8081
+
+tracing:
+  enabled: true
+  provider: "jaeger"  # or "zipkin", "opentelemetry", etc.
+  address: "localhost:6831"
+
+vault:
+  enable: true
+  address: "http://localhost:8200"
+  token: "root"
+
+rate_limiter:
+  enable: true
+  default: 
+    limit: 100
+    burst: 10
+  handlers:
+    - method: "handler1"
+      limit: 100
+      burst: 10
+
+realtime_config: # Registered in ETCD
+  - name: log_level # ["ERROR", "WARN", "INFO", "DEBUG"]
+    usage: Log level enum
+    value: "INFO"
+    type: string # Avaliable types [int, int64, bool, float64, string, duration]
+  - name: cache_ttl
+    usage: Cache TTL
+    value: "30m"
+    type: duration
+
+env:
+  key1: "value1"
+  key2: "value2"
+
+secrets:
+  key1: "value1"
+  key2: "value2"  

@@ -1,10 +1,6 @@
 version: '3'
 
 tasks:
-  mock:
-    cmds:
-      - mockgen -package=mock -destination=./mock/error_handler.go -source=./handler_test.go -mock_names errorHandler=MockErrorHanlder
-
   format:
     cmds:
       - task: go_files
@@ -23,6 +19,13 @@ tasks:
         -formatter friendly
         -exclude ./mock
         ./...
+
+  precommit:
+    desc: "Run all precommit checks"
+    cmds:
+      - task: format
+      - task: test
+      - task: lint
 
 ## INTERNAL COMMANDS
 
