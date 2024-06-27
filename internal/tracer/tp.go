@@ -12,15 +12,13 @@ var (
 	errUnknownTraceProvider = func(tp string) error { return fmt.Errorf("unknown trace provider: %s", tp) }
 )
 
-type tracerProvider string
-
 const (
-	ZIPKIN = "zipkin"
-	JAEGER = "jaeger"
+	zipkinProvider = "zipkin"
+	jaegerProvider = "jaeger"
 )
 
 // Init create a new tracing provider
-func Init(ctx context.Context, provider tracerProvider, url string, opts ...sdktrace.TracerProviderOption) (func(ctx context.Context) error, error) {
+func Init(ctx context.Context, provider string, url string, opts ...sdktrace.TracerProviderOption) (func(ctx context.Context) error, error) {
 	exp, err := getExporter(ctx, provider, url)
 	if err != nil {
 		return nil, err
@@ -34,11 +32,11 @@ func Init(ctx context.Context, provider tracerProvider, url string, opts ...sdkt
 	return tp.Shutdown, nil
 }
 
-func getExporter(ctx context.Context, provider tracerProvider, url string) (sdktrace.SpanExporter, error) {
+func getExporter(ctx context.Context, provider string, url string) (sdktrace.SpanExporter, error) {
 	switch provider {
-	case ZIPKIN:
+	case zipkinProvider:
 		return newZipkinTracer(ctx, url)
-	case JAEGER:
+	case jaegerProvider:
 		return newJaegerTracer(ctx, url)
 	default:
 		return nil, errUnknownTraceProvider(string(provider))
