@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/catalystgo/logger/logger"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
 

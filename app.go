@@ -74,7 +74,7 @@ func New() (*App, error) {
 	return app, nil
 }
 
-func (a *App) Start(descriptions ...Service) error {
+func (a *App) Run(descriptions ...Service) error {
 	// Get serviceDesc
 	serviceDesc := make([]ServiceDesc, len(descriptions))
 	for i, desc := range descriptions {

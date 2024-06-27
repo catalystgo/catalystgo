@@ -7,7 +7,7 @@ import (
 
 	"github.com/catalystgo/logger/logger"
 	"github.com/flowchartsman/swaggerui"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 )
 
 func (a *App) newServerMuxHTTP() *runtime.ServeMux {
