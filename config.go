@@ -88,9 +88,9 @@ func Parse(ctx context.Context) (*config, error) {
 		return nil, err
 	}
 
-	logger.Error(ctx, "cfg.vault.enable: %b", c.Vault.Enable)
-	logger.Error(ctx, "cfg.tracing.enabled: %b", c.Tracing.Enabled)
-	logger.Error(ctx, "cfg.rate_limiter.enable: %b", c.RateLimiter.Enable)
+	logger.Error(ctx, "cfg.vault.enable: %t", c.Vault.Enable)
+	logger.Error(ctx, "cfg.tracing.enabled: %t", c.Tracing.Enabled)
+	logger.Error(ctx, "cfg.rate_limiter.enable: %t", c.RateLimiter.Enable)
 
 	return c, nil
 }

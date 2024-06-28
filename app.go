@@ -109,7 +109,7 @@ func (a *App) Run(descriptions ...Service) error {
 	}
 
 	logger.Errorf(a.ctx, "app started in %s", time.Since(runCallTime).String())
-	logger.Errorf(a.ctx, "app running%d")
+	logger.Error(a.ctx, "app running")
 	<-a.ctx.Done() // Wait for the app to be closed
 
 	return nil
