@@ -35,12 +35,15 @@ type App struct {
 }
 
 func New() (*App, error) {
-	cfg, err := Parse()
+	ctx, cancel := context.WithCancel(context.Background())
+
+	cfg, err := Parse(ctx)
 	if err != nil {
+		cancel()
 		return nil, fmt.Errorf("parse config: %+v", err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	// TODO: process config here
 
 	app := &App{
 		ctx:       ctx,
@@ -64,7 +67,10 @@ func New() (*App, error) {
 	}
 
 	app.globalCloser.Add(func() error {
-		logger.Errorf(ctx, "shutting down app")
+		logger.Error(ctx, "got termination signal")
+		logger.Errorf(ctx, "shutting down app starts in %s", cfg.Server.GracefulShutdown.Timeout.String())
+		logger.Errorf(ctx, "shutting down app started with timeout %s", cfg.Server.GracefulShutdown.Timeout.String())
+
 		app.grpcCloser.CloseAll()
 		app.httpCloser.CloseAll()
 		app.adminCloser.CloseAll()
@@ -102,8 +108,8 @@ func (a *App) Run(descriptions ...Service) error {
 		return fmt.Errorf("start admin server: %+v", err)
 	}
 
-	logger.Infof(a.ctx, "app started in %v", time.Since(runCallTime))
-	logger.Infof(a.ctx, "app running%d")
+	logger.Errorf(a.ctx, "app started in %s", time.Since(runCallTime).String())
+	logger.Errorf(a.ctx, "app running%d")
 	<-a.ctx.Done() // Wait for the app to be closed
 
 	return nil

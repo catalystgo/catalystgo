@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/catalystgo/healthcheck v1.0.0
-	github.com/catalystgo/logger v0.0.2
+	github.com/catalystgo/logger v0.0.4
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
