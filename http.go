@@ -1,13 +1,12 @@
 package catalystgo
 
 import (
-	"fmt"
-	"net"
 	"net/http"
 
 	"github.com/catalystgo/logger/logger"
 	"github.com/flowchartsman/swaggerui"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/pkg/errors"
 )
 
 func (a *App) newServerMuxHTTP() *runtime.ServeMux {
@@ -16,46 +15,48 @@ func (a *App) newServerMuxHTTP() *runtime.ServeMux {
 	return mux
 }
 
-func (a *App) startHTTPServer() error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.Server.HTTP.Port))
+func (a *App) startHTTP() error {
+	lis, err := newListener(a.cfg.Server.HTTP.Port)
 	if err != nil {
-		return fmt.Errorf("listen: %w", err)
+		return err
 	}
 
 	publicServer := http.Server{Handler: a.publicServer}
+
 	go func() {
-		logger.Errorf(a.ctx, "HTTP server listening on port %d", a.cfg.Server.HTTP.Port)
-		if err := http.Serve(lis, a.publicServer); err != nil && err != http.ErrServerClosed {
+		logger.Errorf(a.ctx, "http server listening on port %d", a.cfg.Server.HTTP.Port)
+
+		err = http.Serve(lis, a.publicServer)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.Fatalf(a.ctx, "serve: %v", err)
 		}
 	}()
 
 	a.httpCloser.Add(func() error {
-		logger.Errorf(a.ctx, "shutting down HTTP server")
+		logger.Errorf(a.ctx, "shutdown http server")
 		return publicServer.Shutdown(a.ctx)
 	})
 
 	return nil
 }
 
-func (a *App) startAdminServer() error {
+func (a *App) startAdmin() error {
 	a.setupAdminServer()
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.Server.Debug.Port))
-	if err != nil {
-		return fmt.Errorf("listen: %w", err)
-	}
+	lis, err := newListener(a.cfg.Server.Admin.Port)
 
 	adminServer := http.Server{Handler: a.adminServer}
 	go func() {
-		logger.Errorf(a.ctx, "Admin server listening on port %d", a.cfg.Server.Debug.Port)
-		if err := http.Serve(lis, a.adminServer); err != nil && err != http.ErrServerClosed {
-			logger.Fatalf(a.ctx, "serve: %v", err)
+		logger.Errorf(a.ctx, "admin server listening on port %d", a.cfg.Server.Admin.Port)
+
+		err = http.Serve(lis, a.adminServer)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logger.Fatalf(a.ctx, "serve admin: %v", err)
 		}
 	}()
 
 	a.httpCloser.Add(func() error {
-		logger.Errorf(a.ctx, "shutting down Admin server")
+		logger.Errorf(a.ctx, "shutdown admin server")
 		return adminServer.Shutdown(a.ctx)
 	})
 
@@ -65,17 +66,24 @@ func (a *App) startAdminServer() error {
 func (a *App) setupAdminServer() {
 	b := a.desc.SwaggerJSON()
 
+	// Swagger UI
+
 	a.adminServer.Handle("/swagger.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.Header.Set("Content-Type", "application/json")
-		w.Write(b)
+		_, _ = w.Write(b)
 	}))
 	a.adminServer.Handle("/docs/", http.StripPrefix("/docs/", swaggerui.Handler(b)))
-	a.adminServer.Handle("/healthz", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { // TODO: Use healthcheck handler
+
+	// Healthcheck
+
+	a.adminServer.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		// TODO: Use healthcheck handler
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	}))
-	a.adminServer.Handle("/readyz", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { // TODO: Use healthcheck handler
+	a.adminServer.Handle("/ready", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		// TODO: Use healthcheck handler
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	}))
 }

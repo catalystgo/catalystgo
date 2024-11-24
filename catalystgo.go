@@ -25,7 +25,7 @@ type compoundServiceDesc struct {
 	desc []ServiceDesc
 }
 
-func NewCompoundServiceDesc(desc ...ServiceDesc) ServiceDesc {
+func newCompoundServiceDesc(desc ...ServiceDesc) ServiceDesc {
 	return &compoundServiceDesc{desc: desc}
 }
 
@@ -45,7 +45,11 @@ func (c *compoundServiceDesc) RegisterHTTP(ctx context.Context, mux *runtime.Ser
 }
 
 func (c *compoundServiceDesc) SwaggerJSON() []byte {
-	return c.desc[len(c.desc)-1].SwaggerJSON() // TODO: merge swagger defs from multiple services (currently only the last one is used)
+	files := make([][]byte, len(c.desc))
+	for _, d := range c.desc {
+		files = append(files, d.SwaggerJSON())
+	}
+	return mergeSwagger(files)
 }
 
 func (c *compoundServiceDesc) WithHTTPUnaryInterceptor(i grpc.UnaryServerInterceptor) {
