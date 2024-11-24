@@ -1,33 +1,44 @@
 version: '3'
 
+vars:
+  GOBIN: "$(pwd)/bin"
+
 tasks:
   format:
     cmds:
       - task: go_files
         vars: { COMMAND: 'gofmt -w  {} +'}
       - task: go_files
-        vars: { COMMAND: 'goimports -w  {} +'}
+        vars: { COMMAND: '{{.GOBIN}}/goimports -w  {} +'}
 
   test:
     cmds:
-      - go test -v ./...
+      - go test -v -cover -json -coverprofile=coverage.out
+        $(go list ./... | grep -Ewv "(mock$|cmd$)") | {{.GOBIN}}/gotestfmt
 
   lint:
     cmds:
-      - revive
+      - "{{.GOBIN}}/revive
         -config revive.toml
         -formatter friendly
-        -exclude ./mock
-        ./...
+        -exclude ./**/mock
+        ./..."
 
-  precommit:
+  pre-commit:
     desc: "Run all precommit checks"
     cmds:
       - task: format
       - task: test
       - task: lint
 
-## INTERNAL COMMANDS
+  deps:
+    desc: "Install required dependencies"
+    cmds:
+      - GOBIN={{.GOBIN}} go install golang.org/x/tools/cmd/goimports@v0.19.0
+      - GOBIN={{.GOBIN}} go install github.com/mgechev/revive@v1.3.7
+      - GOBIN={{.GOBIN}} go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@v2.5.0
+
+## internal
 
   go_files:
     desc: "Return all .go files and run .COMMAND on them"

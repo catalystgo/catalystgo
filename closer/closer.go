@@ -155,14 +155,14 @@ func (c *closer) closeAll(closerByOrder map[Order][]func() error) {
 			close(errs)
 		}()
 
-	outerloop:
+	outerLoop:
 		for {
 			select {
 			case err, ok := <-errs:
 				// If channel got closed then
 				// continue on the first level loop
 				if !ok {
-					break outerloop
+					break outerLoop
 				}
 				if err != nil {
 					logger.Warnf(ctx, "error closing: %v", err)

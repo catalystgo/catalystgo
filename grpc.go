@@ -1,30 +1,28 @@
 package catalystgo
 
 import (
-	"fmt"
-	"net"
-
 	"github.com/catalystgo/logger/logger"
 	"google.golang.org/grpc/reflection"
 )
 
-func (a *App) startGrpcServer() error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.Server.Grpc.Port))
+func (a *App) startGrpc() error {
+	lis, err := newListener(a.cfg.Server.Grpc.Port)
 	if err != nil {
-		return fmt.Errorf("failed to listen: %w", err)
+		return err
 	}
 
 	go func() {
 		logger.Errorf(a.ctx, "gRPC server listening on port %d", a.cfg.Server.Grpc.Port)
-		if err := a.grpcServer.Serve(lis); err != nil {
-			logger.Fatalf(a.ctx, "failed to serve: %w", err)
+
+		err = a.grpcServer.Serve(lis)
+		if err != nil {
+			logger.Fatalf(a.ctx, "serve: %v", err)
 		}
 	}()
-
 	reflection.Register(a.grpcServer)
 
 	a.grpcCloser.Add(func() error {
-		logger.Errorf(a.ctx, "shutting down gRPC server")
+		logger.Errorf(a.ctx, "shutdown gRPC server")
 		a.grpcServer.GracefulStop()
 		return nil
 	})
