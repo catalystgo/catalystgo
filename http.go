@@ -7,6 +7,7 @@ import (
 	"github.com/flowchartsman/swaggerui"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
+	"github.com/rs/cors"
 )
 
 func (a *App) newServerMuxHTTP() *runtime.ServeMux {
@@ -21,7 +22,8 @@ func (a *App) startHTTP() error {
 		return err
 	}
 
-	publicServer := http.Server{Handler: a.publicServer}
+	handler := cors.AllowAll().Handler(a.publicServer) // TODO: make cors dynamic
+	publicServer := http.Server{Handler: handler}
 
 	go func() {
 		logger.Errorf(a.ctx, "http server listening on port %d", a.cfg.Server.HTTP.Port)

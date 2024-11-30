@@ -9,7 +9,6 @@ import (
 
 	"github.com/catalystgo/catalystgo/closer"
 	"github.com/catalystgo/catalystgo/internal/config"
-	"github.com/catalystgo/healthcheck"
 	"github.com/catalystgo/logger/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
@@ -21,8 +20,6 @@ type App struct {
 	ctxCancel context.CancelFunc
 
 	cfg *config.AppConfig
-
-	hc healthcheck.Handler // TODO: Use healthcheck.Handler for liveness and readiness checks
 
 	desc ServiceDesc
 
@@ -51,8 +48,6 @@ func New() (*App, error) {
 
 		cfg: cfg,
 
-		hc: healthcheck.NewHandler(),
-
 		grpcServer:   grpc.NewServer(),
 		publicServer: chi.NewMux(),
 		adminServer:  chi.NewMux(),
@@ -68,16 +63,19 @@ func New() (*App, error) {
 	}
 
 	app.globalCloser.Add(func() error {
-		logger.Error(ctx, "got termination signal")
+		logger.ErrorKV(ctx, "got termination signal")
 
-		logger.Errorf(ctx, "shutting down in %s", cfg.Server.Shutdown.Delay.String())
-		time.Sleep(cfg.Server.Shutdown.Delay)
-
-		logger.Error(ctx, "shutting down app")
+		logger.ErrorKV(ctx, "shutting down app")
 
 		app.grpcCloser.CloseAll()
 		app.httpCloser.CloseAll()
 		app.adminCloser.CloseAll()
+		logger.ErrorKV(ctx, "traffic closed")
+
+		logger.Errorf(ctx, "shutting down in %s", cfg.Server.Shutdown.Delay.String())
+		time.Sleep(cfg.Server.Shutdown.Delay)
+
+		closer.CloseAll()
 
 		cancel()
 		return nil

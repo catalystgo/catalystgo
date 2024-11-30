@@ -3,12 +3,12 @@ module github.com/catalystgo/catalystgo
 go 1.23
 
 require (
-	github.com/catalystgo/healthcheck v1.0.0
-	github.com/catalystgo/logger v0.1.0
+	github.com/catalystgo/logger v0.1.1
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
 	github.com/pkg/errors v0.9.1
+	github.com/rs/cors v1.11.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.64.0
