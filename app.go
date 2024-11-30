@@ -62,6 +62,8 @@ func New() (*App, error) {
 		),
 	}
 
+	app.setupHTTP()
+
 	app.globalCloser.Add(func() error {
 		logger.ErrorKV(ctx, "got termination signal")
 
