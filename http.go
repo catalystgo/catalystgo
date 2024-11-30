@@ -5,9 +5,9 @@ import (
 
 	"github.com/catalystgo/logger/logger"
 	"github.com/flowchartsman/swaggerui"
+	"github.com/go-chi/cors"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
-	"github.com/rs/cors"
 )
 
 func (a *App) newServerMuxHTTP() *runtime.ServeMux {
@@ -16,14 +16,28 @@ func (a *App) newServerMuxHTTP() *runtime.ServeMux {
 	return mux
 }
 
+func (a *App) setupHTTP() {
+	// Basic CORS, for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
+	a.publicServer.Use(cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		//AllowedOrigins: []string{"https://*", "http://*"},
+		//AllowedOrigins: []string{"*"},
+		AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
+}
+
 func (a *App) startHTTP() error {
 	lis, err := newListener(a.cfg.Server.HTTP.Port)
 	if err != nil {
 		return err
 	}
 
-	handler := cors.AllowAll().Handler(a.publicServer) // TODO: make cors dynamic
-	publicServer := http.Server{Handler: handler}
+	publicServer := http.Server{Handler: a.publicServer}
 
 	go func() {
 		logger.Errorf(a.ctx, "http server listening on port %d", a.cfg.Server.HTTP.Port)
