@@ -67,8 +67,9 @@ func New() (*App, error) {
 	app.globalCloser.Add(func() error {
 		logger.ErrorKV(ctx, "got termination signal")
 
-		logger.ErrorKV(ctx, "shutting down app")
+		logger.ErrorKV(ctx, "start app shutdown")
 
+		cancel()
 		app.grpcCloser.CloseAll()
 		app.httpCloser.CloseAll()
 		app.adminCloser.CloseAll()
@@ -79,7 +80,8 @@ func New() (*App, error) {
 
 		closer.CloseAll()
 
-		cancel()
+		logger.ErrorKV(ctx, "app shutdown done")
+
 		return nil
 	})
 
