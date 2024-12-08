@@ -13,11 +13,14 @@ import (
 
 type Closer interface {
 	Add(f ...func() error)
+	AddSeq(f ...func() error)
 	AddByOrder(o Order, f ...func() error)
+	AddByOrderSeq(o Order, f ...func() error)
 	Wait()
 	CloseAll()
 }
 
+// Closers in the same Order are closed concurrently
 type Order int8
 
 // Notice the gap between values, You can use it to add custom order in between.
@@ -73,9 +76,18 @@ func Add(f ...func() error) {
 	globalOrderCloser.AddByOrder(NormalOrder, f...)
 }
 
+// AddSeq adds functions that must be called in sequence to the globalCloser with the default order `NormalOrder`
+func AddSeq(f ...func() error) {
+	globalOrderCloser.AddSeq(f...)
+}
+
 // AddByOrder adds a function to the globalCloser with the specified order.
 func AddByOrder(o Order, f ...func() error) {
 	globalOrderCloser.AddByOrder(o, f...)
+}
+
+func AddByOrderSeq(o Order, f ...func() error) {
+	globalOrderCloser.AddByOrderSeq(o, f...)
 }
 
 // Wait waits for all functions in the closer to complete after calling `CloseAll`.
@@ -93,6 +105,18 @@ func (c *closer) Add(f ...func() error) {
 	c.AddByOrder(NormalOrder, f...)
 }
 
+// AddSeq adds functions that must be called in sequence to the closer with the default order `NormalOrder`
+func (c *closer) AddSeq(f ...func() error) {
+	c.AddByOrder(NormalOrder, func() error {
+		for _, v := range f {
+			if err := v(); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
 // AddByOrder adds a function to the closer with the specified order.
 func (c *closer) AddByOrder(o Order, f ...func() error) {
 	c.mu.Lock()
@@ -104,6 +128,18 @@ func (c *closer) AddByOrder(o Order, f ...func() error) {
 	} else {
 		c.closers[o] = append(c.closers[o], f...)
 	}
+}
+
+// AddByOrderSeq adds functions that must be called in sequence to the closer with the specified order
+func (c *closer) AddByOrderSeq(o Order, f ...func() error) {
+	c.AddByOrder(o, func() error {
+		for _, v := range f {
+			if err := v(); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // Wait waits for all functions in the closer to complete after calling `CloseAll`.
